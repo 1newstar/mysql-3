@@ -1,0 +1,38 @@
+1、原则上不建议跨大版本升级sa:5.1to5.6，如果需要实施建议5.1先升级到5.5最新版然后再升级到5.6最新版
+2、升级到5.6的时候注意binlog_format;由于5.6的strict_sql_mode会导致binlog_format在statement模式下出现异常
+3、如果升级后有需要一些修复repair表或者drop或dump reload triggers，此时从库上应该在配置文件里 加上--skip-slave-start,防止启动时连主；
+	主库应该临时关闭二进制set sql_bin_log = 0或者修改配置文件log_bin和binlog_format再重启，如果不想slave链接，则需添加--skip-networking防止slave通过tcp/IP链接
+
+	
+4、5.6版本中移除和替换的参数：
+	--log 替换为	--general_log_file=file-name
+	log-slow-queries	替换为	slow_query_log  同时用slow_query_log_file=file-name来制定文件名
+	table-cache 	替换为	table_open_cache
+	sql_big_tables						big_tables
+	sql_max_join_size					max_join_size
+	max_long_data_size					max_allowed_packet
+==========================升级方式================================
+一、In-Place Upgrade：（替换升级）
+	1、如果使用的innodb，set global innodb_fast_shutdown = 0 关闭快速关闭。此时innodb会在关闭前刷新日志，缓存
+		保证数据完全写入到磁盘。
+	2、关闭数据库
+	3、用新的文件替换久版本文件
+	4、启动数据库 mysqld_safe --user=mysql --datadir=/path/to/existing-datadir
+	5、执行mysqld_upgrade：mysqld_upgrade -uroot -p   这里注意应先关闭gtid_mode模式
+	6、重启数据库 
+		mysqladmin -uroot -p shutdown;
+		mysqld_safe --user=mysql --datadir=/path/to/existing-datadir
+二、逻辑升级：
+	1、导出原数据：
+		mysqldum --add-drop-table --routines --events --all-databases --force >data-for-upgrade.sql_big_tables
+	2、安装新版本数据库
+	3、导入开始的备份文件。
+	4、配置主从服务器，新服务器加入现有集群，提供灰度使用并监控数据
+=========================升级前注意事项===========================
+1、收集现有data server资源信息，such as 负载、配置、my.cnf、binlog_format信息等评估新旧版本参数差异
+2、如果从现有slave中灰度进行升级，则需详细考虑升级slave不提供服务器期间data server稳定性的评估
+3、如果是格外的server则无需考虑2中性能
+4、为了维护系统稳定性，所有的升级务必灰度逐步进行升级。
+
+yum install perl-ExtUtils-CBuilder perl-ExtUtils-MakeMaker cpan
+如果报错Can't locate CPAN.pm in @INC 运?行yum -y install 

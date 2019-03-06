@@ -1,0 +1,38 @@
+1、添加mysql用户(如已经存在则跳过此步骤)：
+useradd mysql -s /sbin/nologin -M
+
+2、下载安装包：
+wget https://downloads.mysql.com/archives/get/file/mysql-5.5.31.tar.gz --no-check-certificate
+
+3、安装依赖环境包：
+
+yum install zlib libxml libjpeg freetype libpng gd curl libiconv zlib-devel libxml2-devel libjpeg-devel freetype-devel libpng-devel gd-devel curl-devel curl libxml2 libxml2-devel libmcrypt libmcrypt-devel libxslt* ncurses-devel openssl openssl-devel pcre pcre-devel gcc gcc-c++ dtrace systemtap-sdt-devel make cmake -y
+
+4、解压：
+tar -zxf mysql-5.5.31.tar.gz
+
+5、进入解压后的目录并且执行安装预编译：
+cd mysql-5.5.31
+cmake \
+-DCMAKE_INSTALL_PREFIX=/usr/local/mysql-5.5.31 \
+-DMYSQL_DATADIR=/usr/local/mysql-5.5.31/data \
+-DWITH_INNOBASE_STORAGE_ENGINE=1 \
+-DWITH_ARCHIVE_STORAGE_ENGINE=1 \
+-DWITH_BLACKHOLE_STORAGE_ENGINE=1 \
+-DWITH_PARTITION_STORAGE_ENGINE=1 \
+-DWITH_PERFSCHEMA_STORAGE_ENGINE=1 \
+-DWITH_FEDERATED_STORAGE_ENGINE=1 \
+-DWITH_MEMORY_STORAGE_ENGINE=1 \
+-DWITH_READLINE=1 \
+-DMYSQL_UNIX_ADDR=/tmp/mysql.sock \
+-DMYSQL_TCP_PORT=3306 \
+-DENABLED_LOCAL_INFILE=1 \
+-DEXTRA_CHARSETS=all \
+-DDEFAULT_CHARSET=utf8 \
+-DDEFAULT_COLLATION=utf8_general_ci
+
+6、执行make && make install 安装
+make && make install
+
+7、初始化数据库
+cd /usr/local/mysql-5.5.31/		#此处是上一步的的安装路径
