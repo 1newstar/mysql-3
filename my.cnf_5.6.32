@@ -16,7 +16,7 @@ autocommit = 1
 character_set_server=utf8mb4
 transaction_isolation = READ-COMMITTED
 explicit_defaults_for_timestamp = 1
-lower_case_table_names = 1
+lower_case_table_names = 0  #linux 0,win 1
 max_allowed_packet = 16777216
 event_scheduler = 1
 server-id = 130
@@ -58,7 +58,6 @@ long_query_time = 2
 min_examined_row_limit = 100
 binlog-rows-query-log-events = 1
 log-bin-trust-function-creators = 1
-expire-logs-days = 90
 log-bin = mysql-bin
 
 # innodb settings #
@@ -105,9 +104,9 @@ binlog_format = ROW
 binlog_rows_query_log_events = 1
 relay_log = relay.log
 relay_log_recovery = 1
-slave_skip_errors = ddl_exist_errors
 slave-rows-search-algorithms = 'INDEX_SCAN,HASH_SCAN'
 skip_slave_start = 1
+innodb_flush_log_at_trx_commit = 2
 
 # semi sync replication settings #
 #plugin_load = "validate_password.so;rpl_semi_sync_master=semisync_master.so;rpl_semi_sync_slave=semisync_slave.so"
